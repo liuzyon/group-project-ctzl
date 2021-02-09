@@ -44,27 +44,30 @@ void grid_to_file(int it)
 	f1.close();
 }
 
-void grid_to_ppm(int it) {
-	stringstream fname;
-	fstream f1;
-	fname << "output_image" << "_" << it << ".ppm";
-	f1.open(fname.str().c_str(), ios_base::out);
-	f1<< "P3" << endl;
-	f1 << imax << " " << jmax << endl;
-	f1 << "255" << endl;
-	int r = 0;
-	int b = 0;
-	int gr = 0;
-	for (int i = 0; i < imax; i++)
-	{
-		for (int j = 0; j < jmax; j++) {
-			gr = grid[i][j] * 255;
-			f1 << r << " " << gr << " " << b << " ";
+void grid_to_ppm(int it, int mypit) {
+	if (it % mypit == 0|| it == max_steps - 1) {
+		stringstream fname;
+		fstream f1;
+		fname << "output_image" << "_" << it << ".ppm";
+		f1.open(fname.str().c_str(), ios_base::out);
+		f1 << "P3" << endl;
+		f1 << imax << " " << jmax << endl;
+		f1 << "255" << endl;
+		int r = 0;
+		int g = 0;
+		int b = 0;
+		for (int i = 0; i < imax; i++) {
+			for (int j = 0; j < jmax; j++) {
+				g = grid[i][j] * 255;
+				f1 << r << " " << g << " " << b << " ";
+			}
+			f1 << endl;
 		}
-		    
-		f1 << endl;
+		f1.close();
+
 	}
-	f1.close();
+	
+
 }
 
 //status of the cell
@@ -102,7 +105,7 @@ int main(int argc, char *argv[])
 		cout << "it: " << n << endl;
 		do_iteration();
 		grid_to_file(n);
-		grid_to_ppm(n);
+		grid_to_ppm(n,20);
 	}
 
 	return 0;
