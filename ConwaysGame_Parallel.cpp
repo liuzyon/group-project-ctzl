@@ -69,9 +69,10 @@ void grid_to_ppm(int it, int mypit) {
 		}
 		f1.close();
 	}
-	
+
 
 }
+
 
 
 //status of the cell
@@ -92,7 +93,7 @@ void do_iteration(void)
 	grid.swap(new_grid);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	srand(time(NULL));
 	imax = 100;
@@ -115,7 +116,7 @@ int main(int argc, char *argv[])
 	}
 
 	clock_t end_serial = clock();
-	cerr << "Serial time of " << imax << " x " << jmax << " with " << max_steps << " generations(Seconds): " << (double)(end_serial - start_serial)/CLOCKS_PER_SEC << endl;
+	cerr << "Serial time of " << imax << " x " << jmax << " with " << max_steps << " generations(Seconds): " << (double)(end_serial - start_serial) / CLOCKS_PER_SEC << endl;
 
 	return 0;
 }
