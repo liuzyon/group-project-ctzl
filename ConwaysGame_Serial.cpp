@@ -4,13 +4,14 @@
 #include <cstdlib>
 #include <time.h>
 #include <vector>
+#include <chrono>
 
 using namespace std;
 
 //Note that this is a serial implementation with a periodic grid
 vector<vector<bool>> grid, new_grid;
 int imax, jmax;
-int max_steps = 100;
+int max_steps = 10;
 
 // how to calculate the numbers of neighbours.
 int num_neighbours(int ii, int jj)
@@ -67,6 +68,7 @@ void grid_to_ppm(int it) {
 	f1.close();
 }
 
+
 //status of the cell
 void do_iteration(void)
 {
@@ -88,10 +90,12 @@ void do_iteration(void)
 int main(int argc, char *argv[])
 {
 	srand(time(NULL));
-	imax = 100;
-	jmax = 100;
+	imax = 1000;
+	jmax = 1000;
 	grid.resize(imax, vector<bool>(jmax));
 	new_grid.resize(imax, vector<bool>(jmax));
+
+	clock_t start_serial = clock();
 
 	//set an initial random collection of points - You could set an initial pattern
 	for (int i = 0; i < imax; i++)
@@ -101,9 +105,12 @@ int main(int argc, char *argv[])
 	{
 		cout << "it: " << n << endl;
 		do_iteration();
-		grid_to_file(n);
+		// grid_to_file(n);
 		grid_to_ppm(n);
 	}
+
+	clock_t end_serial = clock();
+	cerr << "Serial time of " << imax << " x " << jmax << " with " << max_steps << " generations(Seconds): " << (double)(end_serial - start_serial)/CLOCKS_PER_SEC << endl;
 
 	return 0;
 }
