@@ -5,6 +5,7 @@
 #include <time.h>
 #include <vector>
 #include <chrono>
+#include <omp.h>
 
 using namespace std;
 
@@ -78,9 +79,22 @@ void grid_to_ppm(int it, int mypit) {
 //status of the cell
 void do_iteration(void)
 {
+//    omp_set_num_threads(4);
+//    omp_set_nested(1);
+//  Two iterations are collapsed into one large iteration
+#pragma omp parallel for schedule(dynamic) collapse(2)
 	for (int i = 0; i < imax; i++)
+//#pragma omp parallel for schedule(dynamic)
 		for (int j = 0; j < jmax; j++)
-		{
+        {
+
+// method 2: transfer to one iteration manually
+//#pragma omp parallel for schedule(dynamic)
+//        for (int ij=0; ij<imax*jmax; ++ij)
+//		{
+//            int i = ij / jmax;
+//            int j = ij % jmax;
+
 			new_grid[i][j] = grid[i][j];
 			int num_n = num_neighbours(i, j);
 			if (grid[i][j])
@@ -101,7 +115,7 @@ int main(int argc, char* argv[])
 	grid.resize(imax, vector<bool>(jmax));
 	new_grid.resize(imax, vector<bool>(jmax));
 
-	clock_t start_serial = clock();
+    double start_time = omp_get_wtime(); //start time - elapsed wall clock time in seconds
 
 	//set an initial random collection of points - You could set an initial pattern
 	for (int i = 0; i < imax; i++)
@@ -115,8 +129,8 @@ int main(int argc, char* argv[])
 		grid_to_ppm(n, 20);
 	}
 
-	clock_t end_serial = clock();
-	cerr << "Serial time of " << imax << " x " << jmax << " with " << max_steps << " generations(Seconds): " << (double)(end_serial - start_serial) / CLOCKS_PER_SEC << endl;
+    double end_time = omp_get_wtime();//end time
+	cerr << "Parallel time of " << imax << " x " << jmax << " with " << max_steps << " generations(Seconds): " << (double)(end_time - start_time) << endl;
 
 	return 0;
 }
