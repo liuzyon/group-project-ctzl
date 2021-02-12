@@ -117,9 +117,18 @@ int main(int argc, char* argv[])
 
     double start_time = omp_get_wtime(); //start time - elapsed wall clock time in seconds
 
-	//set an initial random collection of points - You could set an initial pattern
-	for (int i = 0; i < imax; i++)
-		for (int j = 0; j < jmax; j++) grid[i][j] = (rand() % 2);
+	// set an initial random collection of points - You could set an initial pattern
+	// change it to a single for loop and parallelize it
+	// increase the speed of consctruting larger random grids
+#pragma omp parallel for 
+	for (int ij = 0; ij < imax * jmax; ij++)
+	{
+		// get row index
+		int i = ij / jmax;
+		// get column index
+        int j = ij % jmax;
+		grid[i][j] = (rand() % 2);
+	}
 
 	for (int n = 0; n < max_steps; n++)
 	{
