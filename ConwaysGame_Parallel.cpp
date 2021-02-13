@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
     std::cout << "MAX THREAD NUMBER: " << omp_get_max_threads() << endl;
     int MAX_THREADS = omp_get_max_threads();
     omp_set_nested(1);
-    omp_set_num_threads(8);
+    omp_set_num_threads(MAX_THREADS);
 	srand(time(NULL));
 	imax = 2000;
 	jmax = 2000;
