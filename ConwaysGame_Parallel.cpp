@@ -10,9 +10,12 @@
 using namespace std;
 
 //Note that this is a serial implementation with a periodic grid
-vector<vector<bool>> grid, new_grid;
+vector<vector<bool>> grid, new_grid, my_grid;
 int imax, jmax;
 int max_steps = 100;
+
+// a new shared variable
+int iter_num = 0;
 
 // how to calculate the numbers of neighbours.
 int num_neighbours(int ii, int jj)
@@ -78,7 +81,7 @@ void grid_to_ppm(int it) {
 
     stringstream fname;
     fstream f1;
-    fname << "output_image" << "_" << it << ".ppm";
+    fname << "output_image" << "_" << int(max_steps / 2) << ".ppm";
     f1.open(fname.str().c_str(), ios_base::out);
     f1 << "P3" << endl;
     f1 << imax << " " << jmax << endl;
@@ -88,7 +91,7 @@ void grid_to_ppm(int it) {
     int b = 0;
     for (int i = 0; i < imax; i++) {
         for (int j = 0; j < jmax; j++) {
-            g = grid[i][j] * 255;
+            g = my_grid[i][j] * 255;
             f1 << r << " " << g << " " << b << " ";
         }
         f1 << endl;
@@ -163,25 +166,45 @@ void iteration(int thread_number) {
 #pragma omp for
         for (int n = 0; n < max_steps; n++)
         {
-            cout << "iteration it: " << n << endl;
+            //cout << "iteration it: " << n << endl;
 //            cout << "iteration it: " << n << " group numebrs: " <<  omp_get_num_threads() << endl;
 #pragma omp critical    // only one thread can modify the array at one time
                 do_iteration();
+// save the mid generation grid to a vector
+#pragma omp atomic
+				iter_num++;
+
+				if (iter_num == int(max_steps / 2)) {
+					my_grid.assign(grid.begin(), grid.end());
+				}
         }
     }
 }
 
-void print() {
+void print(int print_wait_times) {
 //    omp_set_num_threads(thread_number);
 //#pragma omp parallel
 //    {
 //#pragma omp for
-        for (int m = 0; m < 10; m++)    // print m times， random print in all iterations
-        {
-            cout << "print it: " << m << endl;
-//            cout << "print it: " << m << " group numebrs: " <<  omp_get_num_threads() << endl;
-            grid_to_ppm(m);
-        }
+
+
+	// print m times， random print in all iterations(for iter_num<mid number, no use iteration)
+	//when jmax and i max increase m should be larger
+	// the value of m depends on the iteration time. when iter = mid number.
+	for (int m = 0; m < print_wait_times; m++)
+	{
+		cout << "print it: " << iter_num << "$" << m << endl;
+		//            cout << "print it: " << m << " group numebrs: " <<  omp_get_num_threads() << endl;
+
+		grid_to_ppm(iter_num);
+
+		if (iter_num > int(max_steps / 2)) {
+			cout << "\n break with iter_num" << iter_num;
+			break;
+
+		}
+
+	}
 //    }
 }
 
@@ -194,8 +217,10 @@ int main(int argc, char* argv[])
 	srand(time(NULL));
 	imax = 2000;
 	jmax = 2000;
+	int print_wait_times = imax + jmax;//请仔细思考这个数字的选取，与do_iteration()速度有关。可大不可小。
 	grid.resize(imax, vector<bool>(jmax));
 	new_grid.resize(imax, vector<bool>(jmax));
+	my_grid.resize(imax, vector<bool>(jmax));
 
     double start_time = omp_get_wtime(); //start time - elapsed wall clock time in seconds
 
@@ -228,7 +253,7 @@ int main(int argc, char* argv[])
         {
 //            std::cout << "max2: " << omp_get_max_threads();
             // one thread  to print
-            print();
+            print(print_wait_times);
         }
 	}
 }
