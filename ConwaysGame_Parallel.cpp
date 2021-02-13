@@ -30,6 +30,34 @@ int num_neighbours(int ii, int jj)
 	return cnt;
 }
 
+
+
+//These codes use 9 thread to find the
+//neighbors locations and judge the status of then
+//return the number of live neighbors.
+// According to the test these seem to become
+//slower than serial codes.
+//So we ban this method.
+//int num_neighbours(int ii, int jj)
+//{
+//	int cnt = 0;
+//#pragma omp parallel num_threads(9)
+//	{
+//		int i = (omp_get_thread_num() / 3) - 1;
+//		int j = (omp_get_thread_num() % 3) - 1;
+//
+//		if (i != 0 || j != 0) {
+//			int ix = (i + ii + imax) % imax;
+//			int jx = (j + jj + jmax) % jmax;
+//			if (grid[ix][jx])
+//#pragma omp atomic
+//				cnt++;
+//		}
+//	}
+//
+//	return cnt;
+//}
+
 // write in the status of each cell. 
 void grid_to_file(int it)
 {
