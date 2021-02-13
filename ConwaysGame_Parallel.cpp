@@ -46,30 +46,50 @@ void grid_to_file(int it)
 	f1.close();
 }
 
-void grid_to_ppm(int it, int mypit) {
-	if (it % mypit != 0 && it != max_steps - 1) {
-        return;
-	}
-	else {
-		stringstream fname;
-		fstream f1;
-		fname << "output_image" << "_" << it << ".ppm";
-		f1.open(fname.str().c_str(), ios_base::out);
-		f1 << "P3" << endl;
-		f1 << imax << " " << jmax << endl;
-		f1 << "255" << endl;
-		int r = 0;
-		int g = 0;
-		int b = 0;
-		for (int i = 0; i < imax; i++) {
-			for (int j = 0; j < jmax; j++) {
-				g = grid[i][j] * 255;
-				f1 << r << " " << g << " " << b << " ";
-			}
-			f1 << endl;
-		}
-		f1.close();
-	}
+void grid_to_ppm(int it) {
+
+    stringstream fname;
+    fstream f1;
+    fname << "output_image" << "_" << it << ".ppm";
+    f1.open(fname.str().c_str(), ios_base::out);
+    f1 << "P3" << endl;
+    f1 << imax << " " << jmax << endl;
+    f1 << "255" << endl;
+    int r = 0;
+    int g = 0;
+    int b = 0;
+    for (int i = 0; i < imax; i++) {
+        for (int j = 0; j < jmax; j++) {
+            g = grid[i][j] * 255;
+            f1 << r << " " << g << " " << b << " ";
+        }
+        f1 << endl;
+    }
+    f1.close();
+
+//	if (it % mypit != 0 && it != max_steps - 1) {
+//        return;
+//	}
+//	else {
+//		stringstream fname;
+//		fstream f1;
+//		fname << "output_image" << "_" << it << ".ppm";
+//		f1.open(fname.str().c_str(), ios_base::out);
+//		f1 << "P3" << endl;
+//		f1 << imax << " " << jmax << endl;
+//		f1 << "255" << endl;
+//		int r = 0;
+//		int g = 0;
+//		int b = 0;
+//		for (int i = 0; i < imax; i++) {
+//			for (int j = 0; j < jmax; j++) {
+//				g = grid[i][j] * 255;
+//				f1 << r << " " << g << " " << b << " ";
+//			}
+//			f1 << endl;
+//		}
+//		f1.close();
+//	}
 
 
 }
@@ -115,33 +135,31 @@ void iteration(int thread_number) {
 #pragma omp for
         for (int n = 0; n < max_steps; n++)
         {
-//#pragma omp critical
-//                {
             cout << "iteration it: " << n << endl;
 //            cout << "iteration it: " << n << " group numebrs: " <<  omp_get_num_threads() << endl;
-            do_iteration();
-//                }
+#pragma omp critical    // only one thread can modify the array at one time
+                do_iteration();
         }
     }
 }
 
-void print(int thread_number) {
-    omp_set_num_threads(thread_number);
-#pragma omp parallel
-    {
-#pragma omp for
-        for (int m = 0; m < max_steps; m++)
+void print() {
+//    omp_set_num_threads(thread_number);
+//#pragma omp parallel
+//    {
+//#pragma omp for
+        for (int m = 0; m < 10; m++)    // print m times， random print in all iterations
         {
             cout << "print it: " << m << endl;
 //            cout << "print it: " << m << " group numebrs: " <<  omp_get_num_threads() << endl;
-            grid_to_ppm(m, 20);
+            grid_to_ppm(m);
         }
-    }
+//    }
 }
 
 int main(int argc, char* argv[])
 {
-    std::cout << "MAX: " << omp_get_max_threads();
+    std::cout << "MAX THREAD NUMBER: " << omp_get_max_threads() << endl;
     int MAX_THREADS = omp_get_max_threads();
     omp_set_nested(1);
     omp_set_num_threads(8);
@@ -166,20 +184,23 @@ int main(int argc, char* argv[])
 		grid[i][j] = (rand() % 2);
 	}
 
-
 #pragma omp parallel
 {
 #pragma omp sections
     {
+        // one thread to run iteration part
 #pragma omp section
         {
 //            std::cout << "max1: " << omp_get_max_threads();
+            // gerente a thread group(max_size-2) to do iteration
             iteration(MAX_THREADS-2);
         }
+        // one thread to run print
 #pragma omp section
         {
 //            std::cout << "max2: " << omp_get_max_threads();
-            print(2);
+            // one thread  to print
+            print();
         }
 	}
 }
