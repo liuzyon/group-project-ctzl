@@ -218,7 +218,7 @@ int main(int argc, char* argv[])
 //use parallel threads in two sections.
 #pragma omp parallel
 {
-#pragma omp sections
+#pragma omp sections nowait
     {
 // one thread to run iteration part
 #pragma omp section
