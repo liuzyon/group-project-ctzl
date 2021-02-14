@@ -11,7 +11,7 @@
 ////Note that this is a serial implementation with a periodic grid
 //vector<vector<bool>> grid, new_grid;
 //int imax, jmax;
-//int max_steps = 100;
+//int max_steps;
 //
 //// how to calculate the numbers of neighbours.
 //int num_neighbours(int ii, int jj)
@@ -45,6 +45,7 @@
 //	f1.close();
 //}
 //
+//// print ppm file for given timestep.
 //void grid_to_ppm(int it, int mypit) {
 //	if (it % mypit != 0 && it != max_steps - 1) {
 //
@@ -93,11 +94,12 @@
 //	grid.swap(new_grid);
 //}
 //
-//int tmain(int argc, char *argv[])
+//int main(int argc, char *argv[])
 //{
 //	srand(time(NULL));
-//	imax = 100;
-//	jmax = 100;
+//	imax = 1000;
+//	jmax = 1000;
+//	max_steps = 100;
 //	grid.resize(imax, vector<bool>(jmax));
 //	new_grid.resize(imax, vector<bool>(jmax));
 //
@@ -110,10 +112,10 @@
 //
 //	for (int n = 0; n < max_steps; n++)
 //	{
-//		cout << "it: " << n << endl;
+//		//cout << "it: " << n << endl;
 //		do_iteration();
 //		// grid_to_file(n);
-//		grid_to_ppm(n, 20);
+//		grid_to_ppm(n, int(max_steps/2));
 //	}
 //
 //	clock_t end_serial = clock();
