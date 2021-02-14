@@ -223,8 +223,8 @@ int main(int argc, char* argv[])
 // one thread to run iteration part
 #pragma omp section
         {
-            // gerente a thread group(max_size-2) to do iteration
-            iteration(MAX_THREADS-2);
+            // gerente a thread group(max_size-1) to do iteration
+            iteration(MAX_THREADS-1);
         }
 // one thread to run print part
 #pragma omp section
@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
 
 
 	// when iteration ends print the last state of the grid
-	grid_to_ppm(max_steps-1);
+	grid_to_ppm(max_steps);
 
 	//end time
     double end_time = omp_get_wtime();
