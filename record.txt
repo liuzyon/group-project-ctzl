@@ -1,0 +1,11 @@
+Parallel time of 10000 x 10000 with 100 generations(Seconds): 648.167
+Parallel time of 1000 x 1000 with 100 generations(Seconds): 6.7809
+Parallel time of 100 x 100 with 100 generations(Seconds): 0.120848
+
+Serial time of 10000 x 10000 with 100 generations(Seconds): 841.233
+Serial time of 1000 x 1000 with 100 generations(Seconds): 9.058
+Serial time of 100 x 100 with 100 generations(Seconds): 0.123
+
+4 cores Parallel time of 1000 x 1000 with 100 generations(Seconds): 6.7809
+3 cores Parallel time of 1000 x 1000 with 100 generations(Seconds): 7.34142
+2 coresParallel time of 1000 x 1000 with 100 generations(Seconds): 7.84829
