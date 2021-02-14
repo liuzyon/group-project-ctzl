@@ -10,7 +10,7 @@
 using namespace std;
 
 //Note that this is a serial implementation with a periodic grid
-vector<vector<bool>> grid, new_grid, my_grid;
+vector<vector<bool>> grid, new_grid, my_grid_start, my_grid;
 int imax, jmax;
 int max_steps = 100;
 
@@ -79,9 +79,11 @@ void grid_to_file(int it)
 
 void grid_to_ppm(int it) {
 
+
     stringstream fname;
     fstream f1;
-    fname << "output_image" << "_" << int(max_steps / 2) << ".ppm";
+	fname << "output_image" << "_" << it << ".ppm";
+    
     f1.open(fname.str().c_str(), ios_base::out);
     f1 << "P3" << endl;
     f1 << imax << " " << jmax << endl;
@@ -91,7 +93,18 @@ void grid_to_ppm(int it) {
     int b = 0;
     for (int i = 0; i < imax; i++) {
         for (int j = 0; j < jmax; j++) {
-            g = my_grid[i][j] * 255;
+			if (it != 0 && it!= max_steps)
+			{
+				g = my_grid[i][j] * 255;
+			}
+            else if (it == 0)
+			{
+				g = my_grid_start[i][j] * 255;
+			}
+			else if (it == max_steps)
+			{
+				g = grid[i][j] * 255;
+			}
             f1 << r << " " << g << " " << b << " ";
         }
         f1 << endl;
@@ -181,30 +194,43 @@ void iteration(int thread_number) {
     }
 }
 
-void print(int print_wait_times) {
+void print() {
 //    omp_set_num_threads(thread_number);
 //#pragma omp parallel
 //    {
 //#pragma omp for
 
-
 	// print m times， random print in all iterations(for iter_num<mid number, no use iteration)
 	//when jmax and i max increase m should be larger
 	// the value of m depends on the iteration time. when iter = mid number.
-	for (int m = 0; m < print_wait_times; m++)
+	// for (int m = 0; m < print_wait_times; m++)
+	// {
+	// 	cout << "print it: " << iter_num << "$" << m << endl;
+	// 	//            cout << "print it: " << m << " group numebrs: " <<  omp_get_num_threads() << endl;
+	// 	grid_to_ppm(iter_num);
+
+	// 	if (iter_num > int(max_steps / 2)) {
+	// 		cout << "\n break with iter_num" << iter_num << endl;
+	// 		break;
+
+	// 	}
+
+	// }
+
+	// begin by printing the initial state
+	// this will print the saved my_grid_start which will not be affected as iteration goes
+	grid_to_ppm(0);
+
+	// using an empty while loop to wait for the iter_num to reach half of the max
+	while (iter_num < int(max_steps / 2))
 	{
-		cout << "print it: " << iter_num << "$" << m << endl;
-		//            cout << "print it: " << m << " group numebrs: " <<  omp_get_num_threads() << endl;
-
-		grid_to_ppm(iter_num);
-
-		if (iter_num > int(max_steps / 2)) {
-			cout << "\n break with iter_num" << iter_num;
-			break;
-
-		}
 
 	}
+	// if max_steps / 2 is reached, print this saved status which is my_grid
+	grid_to_ppm(int(max_steps / 2));
+
+	// then wait for all iterations completed and the last status will be printed outside at the end
+
 //    }
 }
 
@@ -215,11 +241,12 @@ int main(int argc, char* argv[])
     omp_set_nested(1);
     omp_set_num_threads(MAX_THREADS);
 	srand(time(NULL));
-	imax = 2000;
-	jmax = 2000;
+	imax = 100;
+	jmax = 100;
 	int print_wait_times = imax + jmax;//请仔细思考这个数字的选取，与do_iteration()速度有关。可大不可小。
 	grid.resize(imax, vector<bool>(jmax));
 	new_grid.resize(imax, vector<bool>(jmax));
+	my_grid_start.resize(imax, vector<bool>(jmax));
 	my_grid.resize(imax, vector<bool>(jmax));
 
     double start_time = omp_get_wtime(); //start time - elapsed wall clock time in seconds
@@ -237,6 +264,9 @@ int main(int argc, char* argv[])
 		grid[i][j] = (rand() % 2);
 	}
 
+// store the current grid to my_grid_start and print it in parallel with the iteration
+	my_grid_start.assign(grid.begin(), grid.end());
+
 #pragma omp parallel
 {
 #pragma omp sections
@@ -253,7 +283,7 @@ int main(int argc, char* argv[])
         {
 //            std::cout << "max2: " << omp_get_max_threads();
             // one thread  to print
-            print(print_wait_times);
+            print();
         }
 	}
 }
@@ -267,6 +297,11 @@ int main(int argc, char* argv[])
 //#pragma omp task
 //		grid_to_ppm(n, 20);
 //	}
+
+	cout << "Current iter_num: " << iter_num << endl;
+
+	// when iteration ends print the last state of the grid
+	grid_to_ppm(max_steps);
 
     double end_time = omp_get_wtime();//end time
 	cerr << "Parallel time of " << imax << " x " << jmax << " with " << max_steps << " generations(Seconds): " << (double)(end_time - start_time) << endl;
