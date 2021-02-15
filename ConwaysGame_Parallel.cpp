@@ -149,17 +149,14 @@ void iteration(int thread_number) {
 #pragma omp for
         for (int n = 0; n < max_steps; n++)
         {
-// only one thread can modify the array at one time
-#pragma omp critical    
+// only one thread can modify the array data at one time
+#pragma omp critical
+            {
                 do_iteration();
-
-// protect data.			
-#pragma omp atomic
-				iter_num++;
-// save the mid generation grid to a vector
-				if (iter_num == int(max_steps / 2)) {
-					my_grid.assign(grid.begin(), grid.end());
-				}
+                iter_num++;
+                // save the mid generation grid to a vector
+                if (iter_num == int(max_steps / 2)) my_grid.assign(grid.begin(), grid.end());
+            }
         }
     }
 }
@@ -189,15 +186,15 @@ int main(int argc, char* argv[])
     cout << "Max available threads number: " << MAX_THREADS << endl;
 
     int row_size = 1000;
-    cout << "<Step 1>\nThe row size of Conways (Please input an integer value):" << endl;
+    cout << "<STEP-1>\nThe row size of Conways Game (Please input an integer value):" << endl;
     cin >> row_size;
 
     int column_size = 1000;
-    cout << "<Step 2>\nThe column size of Conways (Please input an integer value):" << endl;
+    cout << "<STEP-2>\nThe column size of Conways Game(Please input an integer value):" << endl;
     cin >> column_size;
 
     int step_times = 100;
-    cout << "<Step 3>\nThe iteration steps (Please input an integer value):" << endl;
+    cout << "<STEP-3>\nThe size of iteration (Please input an integer value):" << endl;
     cin >> step_times;
 
     omp_set_nested(1);
@@ -212,8 +209,7 @@ int main(int argc, char* argv[])
 	my_grid_start.resize(imax, vector<bool>(jmax));
 	my_grid.resize(imax, vector<bool>(jmax));
 
-	std::cout << "<Processing>\nRunning... \nPlease wait for the result." << endl;
-
+	std::cout << "<PROCESSING>\nRunning... \nPlease wait for the result." << endl;
 	// start time - elapsed wall clock time in seconds
     double start_time = omp_get_wtime(); 
 
@@ -259,7 +255,7 @@ int main(int argc, char* argv[])
 
 	//end time
     double end_time = omp_get_wtime();
-	cerr << "<Result>\nParallel time of " << imax << " x " << jmax << " with " << max_steps << " generations(Seconds): " << (double)(end_time - start_time) << endl;
+	cerr << "<RESULT>\nParallel time of " << imax << " x " << jmax << " with " << max_steps << " generations(Seconds): " << (double)(end_time - start_time) << endl;
 
 	return 0;
 }
