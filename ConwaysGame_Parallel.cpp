@@ -185,19 +185,34 @@ void print() {
 
 int main(int argc, char* argv[])
 {
-	//std::cout << "MAX THREAD NUMBER: " << omp_get_max_threads() << endl;
     int MAX_THREADS = omp_get_max_threads();
+    cout << "Max available threads number: " << MAX_THREADS << endl;
+
+    int row_size = 1000;
+    cout << "<Step 1>\nThe row size of Conways (Please input an integer value):" << endl;
+    cin >> row_size;
+
+    int column_size = 1000;
+    cout << "<Step 2>\nThe column size of Conways (Please input an integer value):" << endl;
+    cin >> column_size;
+
+    int step_times = 100;
+    cout << "<Step 3>\nThe iteration steps (Please input an integer value):" << endl;
+    cin >> step_times;
+
     omp_set_nested(1);
     omp_set_num_threads(MAX_THREADS);
 	srand(time(NULL));
 	//initialise the size of grid and iteration times.
-	imax = 1000;
-	jmax = 1000;
-	max_steps = 100;
+	imax = row_size;
+	jmax = column_size;
+	max_steps = step_times;
 	grid.resize(imax, vector<bool>(jmax));
 	new_grid.resize(imax, vector<bool>(jmax));
 	my_grid_start.resize(imax, vector<bool>(jmax));
 	my_grid.resize(imax, vector<bool>(jmax));
+
+	std::cout << "<Processing>\nRunning... \nPlease wait for the result." << endl;
 
 	// start time - elapsed wall clock time in seconds
     double start_time = omp_get_wtime(); 
@@ -244,7 +259,7 @@ int main(int argc, char* argv[])
 
 	//end time
     double end_time = omp_get_wtime();
-	cerr << "Parallel time of " << imax << " x " << jmax << " with " << max_steps << " generations(Seconds): " << (double)(end_time - start_time) << endl;
+	cerr << "<Result>\nParallel time of " << imax << " x " << jmax << " with " << max_steps << " generations(Seconds): " << (double)(end_time - start_time) << endl;
 
 	return 0;
 }
