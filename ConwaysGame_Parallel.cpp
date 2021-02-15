@@ -81,7 +81,7 @@ void grid_to_file(int it)
 void grid_to_ppm(int it) {
     stringstream fname;
     fstream f1;
-	fname << "output_image" << "_" << it << ".ppm";
+	fname << "CTZL_" << imax << " x " << jmax << "_image_" << it << ".ppm";
     
     f1.open(fname.str().c_str(), ios_base::out);
     f1 << "P3" << endl;
@@ -92,14 +92,17 @@ void grid_to_ppm(int it) {
     int b = 0;
     for (int i = 0; i < imax; i++) {
         for (int j = 0; j < jmax; j++) {
+			// in our case, this produces the mid point of all iterations
 			if (it != 0 && it!= max_steps)
 			{
 				g = my_grid[i][j] * 255;
 			}
+			// for the initial case
             else if (it == 0)
 			{
 				g = my_grid_start[i][j] * 255;
 			}
+			// for the final status after all genenrations
 			else if (it == max_steps)
 			{
 				g = grid[i][j] * 255;
@@ -173,7 +176,7 @@ void print() {
 	{
 
 	}
-	// if max_steps / 2 is reached, print this saved status which is my_grid
+	// if max_steps / 2 is reached, print this saved status which is stored as my_grid
 	grid_to_ppm(int(max_steps / 2));
 
 	// then wait for all iterations completed and the last status will be printed outside at the end
